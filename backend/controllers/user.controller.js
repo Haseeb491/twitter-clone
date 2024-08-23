@@ -1,3 +1,4 @@
+import Notification from "../models/notification.models.js";
 import User from "../models/user.model.js";
 
 export const getUserProfile = async(req,res)=>{
@@ -49,6 +50,8 @@ export const followUnfollowUser = async(req,res)=>{
                 }
             })
             res.status(200).json({message: "unfollowed the user successfully"});
+            // todo: return the id of the user as a response
+
 
         }else{
             // follow the user
@@ -62,8 +65,16 @@ export const followUnfollowUser = async(req,res)=>{
                     following : id,
                 }
             })
+            // Send notification after following the user
+            const newNotification = new Notification({
+                type : "follow",
+                from : req.user._id,
+                to: userToModify._id,
+            });
+
+            await newNotification.save();
+            // todo: return the id of the user as a response
             res.status(200).json({message: "followed the user successfully"});
-            // Todo: Send notification after following the user
         }
 
     } catch (error) {

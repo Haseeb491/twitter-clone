@@ -5,12 +5,14 @@ import { IoNotifications } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 const Sidebar = () => {
 
-	const {mutate, isError, isPending,error} = useMutation({
+	const queryClient = useQueryClient();
+
+	const {mutate,error} = useMutation({
 		mutationFn : async()=>{
 			try {
 				const res = await fetch("/api/auth/logout",{
@@ -25,17 +27,15 @@ const Sidebar = () => {
 			}
 		},
 		onSuccess : () =>{
-			toast.success("logged out successfully")
+			toast.success("logged out successfully");
+			queryClient.invalidateQueries({queryKey : ["authUser"]});
+		},
+		onError : () =>{
+			toast.error("logout failed");
 		}
 	})
 
-	const data = {
-		fullName: "John Doe",
-		username: "johndoe",
-		profileImg: "/avatars/boy1.png",
-	};
-
-
+	const {data} = useQuery({queryKey : ['authUser']});
 
 	return (
 		<div className='md:flex-[2_2_0] w-18 max-w-52'>
